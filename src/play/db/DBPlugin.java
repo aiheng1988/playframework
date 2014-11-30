@@ -11,15 +11,19 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import jregex.Matcher;
+
 import org.apache.commons.lang.StringUtils;
+
 import play.Logger;
 import play.Play;
 import play.PlayPlugin;
@@ -306,6 +310,8 @@ public class DBPlugin extends PlayPlugin {
      * Needed because DriverManager will not load a driver ouside of the system classloader
      */
     public static class ProxyDriver implements Driver {
+    	
+    	private java.util.logging.Logger logger = java.util.logging.Logger.getLogger("ProxyDriver");
 
         private Driver driver;
 
@@ -336,6 +342,12 @@ public class DBPlugin extends PlayPlugin {
         public boolean jdbcCompliant() {
             return this.driver.jdbcCompliant();
         }
+
+		@Override
+		public java.util.logging.Logger getParentLogger()
+				throws SQLFeatureNotSupportedException {
+			return logger;
+		}
     }
 
     public static class PlayConnectionCustomizer implements ConnectionCustomizer {
